@@ -85,7 +85,9 @@ int main(void)
 	}
 
 	// Accept a client socket, фактическая обработка запроса клиента на установление соединения
-	ClientSocket = accept(ListenSocket, NULL, NULL);
+  printf("Waiting for data...");
+  fflush(stdout);
+  ClientSocket = accept(ListenSocket, NULL, NULL);
 	if (ClientSocket == INVALID_SOCKET) {
 		printf("accept failed with error: %d\n", WSAGetLastError());
 		closesocket(ListenSocket);
@@ -96,37 +98,38 @@ int main(void)
 
 	// No longer need server socket
 	closesocket(ListenSocket);
+  
+  // Receive until the peer shuts down the connection
+    do {
 
-	// Receive until the peer shuts down the connection
-	do {
+      iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
+      if (iResult > 0) {
+        printf("Bytes received: %d\n", iResult);
 
-		iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
-		if (iResult > 0) {
-			printf("Bytes received: %d\n", iResult);
-
-			// Echo the buffer back to the sender
-			iSendResult = send(ClientSocket, recvbuf, iResult, 0);
-			if (iSendResult == SOCKET_ERROR) {
-				printf("send failed with error: %d\n", WSAGetLastError());
-				closesocket(ClientSocket);
-				WSACleanup();
+        // Echo the buffer back to the sender
+        iSendResult = send(ClientSocket, recvbuf, iResult, 0);
+        if (iSendResult == SOCKET_ERROR) {
+          printf("send failed with error: %d\n", WSAGetLastError());
+          closesocket(ClientSocket);
+          WSACleanup();
+          system("pause");
+          return 1;
+        }
+        printf("Bytes sent: %d\n", iSendResult);
+      }
+      else if (iResult == 0)
+        printf("Connection closing...\n");
+      else  {
+        printf("recv failed with error: %d\n", WSAGetLastError());
+        closesocket(ClientSocket);
+        WSACleanup();
         system("pause");
-				return 1;
-			}
-			printf("Bytes sent: %d\n", iSendResult);
-		}
-		else if (iResult == 0)
-			printf("Connection closing...\n");
-		else  {
-			printf("recv failed with error: %d\n", WSAGetLastError());
-			closesocket(ClientSocket);
-			WSACleanup();
-      system("pause");
-			return 1;
-		}
+        return 1;
+      }
 
-	} while (iResult > 0);
-	printf("Text %s\n", recvbuf);
+    } while (iResult > 0);
+
+    printf("Text %s\n", recvbuf);
 
 	// shutdown the connection since we're done
 	iResult = shutdown(ClientSocket, SD_SEND);
