@@ -52,7 +52,7 @@ int main(void)
 		scanf("%d", &n);
 
 		FILE *file;
-		char *fname = "D:\\files\\f0.txt";
+		char *fname = "file.txt";
 		char result_sting[512]; //Строка в 20 символов
 
 		file = fopen(fname, "r");
@@ -84,7 +84,7 @@ int main(void)
 		i = 0;
 		while (result_sting[i] != ' ')
 		{
-			mas[1].message1[i] = result_sting[i];
+			mas[0].message1[i] = result_sting[i];
 			i++;
 		}
 
@@ -93,19 +93,19 @@ int main(void)
 		
 		while (result_sting[i] != '\0') 
 		{
-			mas[1].message2[n] = result_sting[i];
+			mas[0].message2[n] = result_sting[i];
 			i++;
 			n++;
 		}
 
 		
 		//send the message
-		if (sendto(s, mas[1].message1, i-n-1, 0, (struct sockaddr *) &si_other, slen) == SOCKET_ERROR)
+		if (sendto(s, mas[0].message1, i-n-1, 0, (struct sockaddr *) &si_other, slen) == SOCKET_ERROR)
 		{
 			printf("sendto() failed with error code : %d", WSAGetLastError());
 			exit(EXIT_FAILURE);
 		}
-		if (sendto(s, mas[1].message2, n, 0, (struct sockaddr *) &si_other, slen) == SOCKET_ERROR)
+		if (sendto(s, mas[0].message2, n, 0, (struct sockaddr *) &si_other, slen) == SOCKET_ERROR)
 		{
 			printf("sendto() failed with error code : %d", WSAGetLastError());
 			exit(EXIT_FAILURE);
@@ -130,7 +130,6 @@ int main(void)
 		}
 
 		puts(buf2);
-
 
 	}
 

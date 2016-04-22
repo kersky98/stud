@@ -65,28 +65,31 @@ int main()
 		fflush(stdout);
 
 		//clear the buffer by filling null, it might have previously received data
-		memset(buf1, '\0', BUFLEN1);
+		memset(mas[0].message1, '\0', BUFLEN1);
 
 		//try to receive some data, this is a blocking call
-		if ((recv_len = recvfrom(s, buf1, BUFLEN1, 0, (struct sockaddr *) &si_other, &slen)) == SOCKET_ERROR)
+    if ((recv_len = recvfrom(s, mas[0].message1, BUFLEN1, 0, (struct sockaddr *) &si_other, &slen)) == SOCKET_ERROR)
 		{
 			printf("recvfrom() failed with error code : %d", WSAGetLastError());
 			exit(EXIT_FAILURE);
 		}
 
 		while ((type != '1') && (type != '2') && (type != '3')){
-			printf("\n\nInput radix of IP Adress (1-3)\n1)Binary number system\n2)Decimal number system\n3)Hexadecimal number system\n");
+			printf("\n\nInput radix of IP Adress (1-3)\n\
+        1)Binary number system\n\
+        2)Decimal number system\n\
+        3)Hexadecimal number system\n");
 			scanf("%c", &type);
 			if (type == '2')
-				printf("IP adress: %s\n", buf1);
+        printf("IP adress: %s\n", mas[0].message1);
 			else if (type == '1')
 			{
-				std::vector<int> splitAddress = split(buf1, ".");
+        std::vector<int> splitAddress = split(mas[0].message1, ".");
 				std::string bin = ip2Bin(splitAddress);
 				std::cout << "IP adress: "<<bin << std::endl;
 			}
 			else if(type == '3'){
-				std::vector<int> splitAddress = split(buf1, ".");
+        std::vector<int> splitAddress = split(mas[0].message1, ".");
 				std::string hex = ip2Hex(splitAddress);
 				std::cout << "IP adress: " << hex << std::endl;
 
@@ -97,7 +100,7 @@ int main()
 		type = '0';
 
 		//now reply the client with the same data
-		if (sendto(s, buf1, recv_len, 0, (struct sockaddr*) &si_other, slen) == SOCKET_ERROR)
+    if (sendto(s, mas[0].message1, recv_len, 0, (struct sockaddr*) &si_other, slen) == SOCKET_ERROR)
 		{
 			printf("sendto() failed with error code : %d", WSAGetLastError());
 			exit(EXIT_FAILURE);
@@ -105,20 +108,20 @@ int main()
 
 		
 		//clear the buffer by filling null, it might have previously received data
-		memset(buf2, '\0', BUFLEN2);
+    memset(mas[0].message2, '\0', BUFLEN2);
 
 		//try to receive some data, this is a blocking call
-		if ((recv_len = recvfrom(s, buf2, BUFLEN2, 0, (struct sockaddr *) &si_other, &slen)) == SOCKET_ERROR)
+    if ((recv_len = recvfrom(s, mas[0].message2, BUFLEN2, 0, (struct sockaddr *) &si_other, &slen)) == SOCKET_ERROR)
 		{
 			printf("recvfrom() failed with error code : %d", WSAGetLastError());
 			exit(EXIT_FAILURE);
 		}
 		
 		//print details of the client/peer and the data received
-		printf("Internet adress: %s\n\n", buf2);
+    printf("Internet adress: %s\n\n", mas[0].message2);
 
 		//now reply the client with the same data
-		if (sendto(s, buf2, recv_len, 0, (struct sockaddr*) &si_other, slen) == SOCKET_ERROR)
+    if (sendto(s, mas[0].message2, recv_len, 0, (struct sockaddr*) &si_other, slen) == SOCKET_ERROR)
 		{
 			printf("sendto() failed with error code : %d", WSAGetLastError());
 			exit(EXIT_FAILURE);
