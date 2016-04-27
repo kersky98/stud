@@ -19,7 +19,7 @@ int resourse = 0; //разделяемая переменная
 
 HANDLE can_read_event;//событие, пропускающее читателей (со сбросом вручную)
 HANDLE can_write_event; //событие, пропускающее писателей (с автосбросом)
-HANDLE rw_mutex; //мьютекс, предоставляющий монопольный доступ к ресурсу
+//HANDLE rw_mutex; //мьютекс, предоставляющий монопольный доступ к ресурсу
 
 void start_read() //открываем работу читателей
 {
@@ -28,8 +28,8 @@ void start_read() //открываем работу читателей
   {
     WaitForSingleObject(can_read_event, INFINITE);
   }
-  InterlockedDecrement((LONG*)&queue_canread);
   InterlockedIncrement((LONG*)&readers);
+  InterlockedDecrement((LONG*)&queue_canread);
 }
 
 void stop_read()  //закрываем работу читателей
@@ -86,10 +86,10 @@ void write(void*parametr)
   {
     Sleep(rand() % wait_time_writers);
     start_write();
-    WaitForSingleObject(rw_mutex, INFINITE);
+    //WaitForSingleObject(rw_mutex, INFINITE);
     resourse++;
     printf("Hello! I`m writer. My number is: %d; Resourse = %d\n", *number, resourse);
-    ReleaseMutex(rw_mutex);
+    //ReleaseMutex(rw_mutex);
     stop_write();
   }
 }
@@ -104,7 +104,7 @@ int main(){
   }
 
   //создаем мьютекс и события
-  rw_mutex = CreateMutex(NULL, FALSE, NULL); //создаем мьютекс
+  //rw_mutex = CreateMutex(NULL, FALSE, NULL); //создаем мьютекс
   can_read_event = CreateEvent(NULL, TRUE, TRUE, NULL); //сброс вручную
   can_write_event = CreateEvent(NULL, FALSE, TRUE, NULL); // с автосбросом
 
