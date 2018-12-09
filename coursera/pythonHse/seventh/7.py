@@ -15,16 +15,29 @@
 # Вы должны вывести (через пробел, в порядке возрастания) все числа, которые
 # мог задумать Август.
 fin = open('input.txt', 'r', encoding='utf8')
-n = fin.readline()
+n = int(fin.readline())
 s = ''
-setres = set()
+setyes = set(map(str, range(1, n+1)))
+setno = set(map(str, range(1, n+1)))
+setover = set()
+
+s = fin.readline().replace('\n', '')
+flagY = False
+flagN = False
 while s != 'HELP':
-    s = fin.readline().replace('\n', '')
+    # print(s)
     answer = fin.readline().replace('\n', '')
-    sset = set(map(int, s.split()))
-    print(sset)
+    # print(answer)
+    # sset = set(map(int, s.split()))
+    sset = set(s.split())
+    # print(sset)
     if answer == 'YES':
-        for item in sset:
-            print(item)
-            setres.add(item)
-    print(s)
+        setyes &= sset
+        # print('yes', setyes)
+    else:
+        setyes -= sset
+    s = fin.readline().replace('\n', '')
+# print('yes', setyes)
+# print('no', setno)
+print(*sorted(setyes))
+fin.close()
