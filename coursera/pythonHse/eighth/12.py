@@ -28,8 +28,27 @@ class Matrix:
         self.size = (nrows, ncolumns)
         return self.size
 
+    def __add__(self, other):
+        smylist = []
+        nrows = self.size()[0]
+        for i in range(nrows):
+            smylist.append(
+                list(
+                    map(
+                        lambda x: x[0] + x[1],
+                        zip(self.mylst[i], other.mylst[i])
+                        )
+                    )
+                )
+        return Matrix(smylist)
+
+    def __mul__(self, other):
+        smylist = []
+        for item in self.mylst:
+            smylist.append(list(map(lambda x: x * other, item)))
+        return Matrix(smylist)
+
+    __rmul__ = __mul__
+
 
 exec(stdin.read())
-# m = Matrix([[2, 2], [0, 0], [1, 1]])
-
-# print(str(m))
