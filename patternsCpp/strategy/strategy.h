@@ -1,38 +1,45 @@
-//
-// Created by user on 13.03.18.
-//
-
 #ifndef STRATEGY_STRATEGY_H
 #define STRATEGY_STRATEGY_H
-
-/**
-  @class IWriteBehavior
-  @brief интерфейс(абстрактный класс) поведения записи
+/* Драйвер предоставляет функции обмена сообщениями как с устройством,
+ * так и с системой управления. В общем случае это взаимодействие может
+ * происходить по разным интерфейсам, например, драйвер общается с ячейкой
+ * по шине VME, а с системой управления по Ethernet. Так как драйвер может
+ * взаиможействовать не напрямую с устройством, а с другим драйвером, то
+ * функциональную схему обменов можно предствить следующим образом:
+ *            (Up layer) B221
+ *             /|\       |
+ *              |       Read
+ *            Write      |
+ *              |       \|/
+ *             (driver Ya001)
+ *             /|\       |
+ *              |      Write
+ *             Read      |
+ *              |       \|/
+ *           (Down layer) device Ya001
+ * Назовем поведение обменов:
+ * IExchUpBehavior - наверх в вышестоящий драйвер или систему управления,
+ * IExchBehavior - вниз в устройство или нижестоящий драйвер
 */
-class IWriteBehavior
-{
-public:
-  virtual bool Write() = 0;    //!< виртуальный метод записи
-  virtual ~IWriteBehavior(){}; //!< виртуальный деструктор класса
-};
 
+#include <iostream>
+#include "serv_info.h"
 /**
-  @class IReadBehavior
-  @brief интерфейс(абстрактный класс) поведения чтения
+  @class IExchBehavior
+  @brief интерфейс(абстрактный класс) поведения записи/чтения
 */
-class IReadBehavior
-{
+class IExchBehavior{
 public:
+  virtual bool Write() = 0;   //!< виртуальный метод записи
   virtual bool Read() = 0;    //!< виртуальный метод чтения
-  virtual ~IReadBehavior(){}; //!< виртуальный деструктор класса
+  virtual ~IExchBehavior(){}; //!< виртуальный деструктор класса
 };
 
 /**
-  @class Write2Vme
-  @brief класс для реализации метода записи по интерфейсу VME
+  @class ExchVme
+  @brief класс для реализации метода записи/чтения по интерфейсу VME
 */
-class Write2Vme: public IWriteBehavior
-{
+class ExchVme: public IExchBehavior{
 public:
 /**
   @fn Write
@@ -40,19 +47,27 @@ public:
   @param без параметров
   @return true в случае успешной записи
 */
-  bool Write()
-  {
-    std::cout << "Write2Vme [ok]" << std::endl;
+  bool Write(){
+    std::cout << "WriteVme [ok]" << std::endl;
+    return true;
+  }
+  /**
+  @fn Read
+  @brief ф-я реазлизации чтения по VME
+  @param без параметров
+  @return true в случае успешного чтения
+*/
+  bool Read(){
+    std::cout << "ReadVme [ok]" << std::endl;
     return true;
   }
 };
 
 /**
-  @class Write2Ethernet
-  @brief класс для реализации метода записи по интерфейсу Ethernet
+  @class ExchEthernet
+  @brief класс для реализации метода записи/чтения по интерфейсу Ethernet
 */
-class Write2Ethernet: public IWriteBehavior
-{
+class ExchEthernet: public IExchBehavior{
 public:
   /**
   @fn Write
@@ -60,40 +75,10 @@ public:
   @param без параметров
   @return true в случае успешной записи
 */
-  bool Write()
-  {
-    std::cout << "Write2Ethernet [ok]" << std::endl;
+  bool Write(){
+    std::cout << "WriteEthernet [ok]" << std::endl;
     return true;
   }
-};
-
-/**
-  @class ReadFromVme
-  @brief класс для реализации метода чтения по интерфейсу VME
-*/
-class ReadFromVme: public IReadBehavior
-{
-public:
-  /**
-  @fn Read
-  @brief ф-я реазлизации чтения по VME
-  @param без параметров
-  @return true в случае успешного чтения
-*/
-  bool Read()
-  {
-    std::cout << "ReadFromVme [ok]" << std::endl;
-    return true;
-  }
-};
-
-/**
-  @class ReadFromEthernet
-  @brief класс для реализации метода чтения по интерфейсу Ethernet
-*/
-class ReadFromEthernet: public IReadBehavior
-{
-public:
   /**
   @fn Read
   @brief ф-я реазлизации чтения по Ethernet
@@ -102,127 +87,184 @@ public:
 */
   bool Read()
   {
-    std::cout << "ReadFromEthernet [ok]" << std::endl;
+    std::cout << "ReadEthernet [ok]" << std::endl;
     return true;
   }
 };
 
-
 /**
-  @class IDevice
-  @brief интерфейс(абстрактный класс) устройства из состава изделия
+  @class ExchImitator
+  @brief класс для реализации метода записи/чтения к имитатору
 */
-class PredIDevice
-{
+class ExchImitator: public IExchBehavior{
 public:
-  virtual ~PredIDevice(){}; //!< виртуальный деструктор
-  /**
-  @fn PerformWrite
-  @brief ф-я выполнения записи по Ethernet или VME, для самой ф-ии это уже прозрачно
+/**
+  @fn Write
+  @brief ф-я реазлизации записи в имитатор
   @param без параметров
   @return true в случае успешной записи
 */
-  virtual bool PerformWrite() = 0;
+  bool Write(){
+    std::cout << "WriteImitator [ok]" << std::endl;
+    return true;
+  }
   /**
-  @fn PerformRead
-  @brief ф-я выполнения чтения по Ethernet или VME, для самой ф-ии это уже прозрачно
+  @fn Read
+  @brief ф-я реазлизации чтения из имитатора
   @param без параметров
   @return true в случае успешного чтения
 */
-  virtual bool PerformRead() = 0;
-
-
-  virtual void Display()=0;
-  virtual void CommonFunction() = 0;
+  bool Read(){
+    std::cout << "ReadImitator [ok]" << std::endl;
+    return true;
+  }
 };
 
 /**
-  @class IDevice
-  @brief интерфейс(абстрактный класс) устройства из состава изделия
+  @class Device
+  @brief базовый класс устройства из состава изделия
 */
-class IDevice : public PredIDevice
+class Device
 {
 protected:
-  IReadBehavior  *readBehavior;  //!< Указатель на метод чтения
-  IWriteBehavior *writeBehavior; //!< Указатель на метод записи
+  IExchBehavior* exchUpBehavior; //!< Указатель на методы записи/чтения вверх
+  IExchBehavior* exchBehavior;   //!< Указатель на метод записи/чтения вниз
 public:
-  virtual ~IDevice(){}; //!< виртуальный деструктор
+  /**
+  @fn PerformWriteUp
+  @brief ф-я выполнения записи по Ethernet или VME, для самой ф-ии это уже прозрачно
+  @param без параметров
+  @return true в случае успешной записи
+*/
+  bool PerformWriteUp(){
+    return exchUpBehavior->Write();
+  }
+  /**
+  @fn PerformReadUp
+  @brief ф-я выполнения чтения по Ethernet или VME, для самой ф-ии это уже прозрачно
+  @param без параметров
+  @return true в случае успешного чтения
+*/
+  bool PerformReadUp(){
+    return exchUpBehavior->Read();
+  }
+
   /**
   @fn PerformWrite
   @brief ф-я выполнения записи по Ethernet или VME, для самой ф-ии это уже прозрачно
   @param без параметров
   @return true в случае успешной записи
 */
-  bool PerformWrite(){return writeBehavior->Write();}
+  bool PerformWrite(){
+    return exchBehavior->Write();
+  }
   /**
   @fn PerformRead
   @brief ф-я выполнения чтения по Ethernet или VME, для самой ф-ии это уже прозрачно
   @param без параметров
   @return true в случае успешного чтения
 */
-  bool PerformRead(){return readBehavior->Read();}
+  bool PerformRead(){
+    return exchBehavior->Read();
+  }
   /**
-  @fn SetWriteBehavior
-  @brief ф-я устновки метода записи (поведения) по Ethernet или VME
+  @fn SetExchUpBehavior
+  @brief ф-я устновки метода записи/чтения (поведения) вверх по Ethernet или VME
   @param iw - указатель на интерфейс записи
 */
-  void SetWriteBehavior(IWriteBehavior *iw){writeBehavior = iw;}
+  void SetExchUpBehavior(IExchBehavior *ie){
+    exchUpBehavior = ie;
+  }
   /**
-  @fn SetReadBehavior
-  @brief ф-я устновки метода чтения (поведения) по Ethernet или VME
+  @fn SetExchBehavior
+  @brief ф-я устновки метода записи/чтения (поведения) по Ethernet или VME
   @param ir - указатель на интерфейс чтения
 */
-  void SetReadBehavior(IReadBehavior *ir){readBehavior = ir;}
+  void SetExchBehavior(IExchBehavior *ie){
+    exchBehavior = ie;
+  }
 
-  void CommonFunction(){ std::cout << "I'm CommonFunction for all Devices." << std::endl; }
+  // общая для всех устройств функция
+  void CommonFunction(){
+    std::cout << "I'm CommonFunction for all Devices." << std::endl;
+  }
+
+  void SetInfo(const ServInfo& info ){
+    this->info = info;
+  }
+
+  virtual ~Device(){};
+
+  void ViewServInfo(){
+    std::cout << "ServInfo: " <<
+        "vid: " << unsigned(info.vid) << "; " <<
+        "did: " << unsigned(info.did) << "; " <<
+        "unique_number: " << unsigned(info.unique_number) << "; " <<
+        "sw_ver: " << unsigned(info.sw_ver) << "; " <<
+        "hw_ver: " << unsigned(info.hw_ver) << "; " <<
+        "time_cnt: " << unsigned(info.time_cnt) << "; " <<
+        "mem_sz: " << unsigned(info.mem_sz) << "; " << std::endl;
+  }
+
+  virtual void Display(){
+    std::cout << std::endl << "I'm Virtual Device. " << std::endl;
+  }
+private:
+  ServInfo info;
 };
 
 /**
   @class Ya400
   @brief класс конкретного устройства Я400(ФДН)
 */
-class Ya400: public IDevice
-{
+class Ya400: public Device{
 private:
-  Write2Vme   write2Vme;   //!< поведение записи по дефолту - VME
-  ReadFromVme readFromVme; //!< поведение чтения по дефолту - VME
+  //WriteVme write2Vme;  //!< поведение записи по дефолту - VME
+  //ReadVme readFromVme; //!< поведение чтения по дефолту - VME
   int a;
 public:
-  Ya400()
-  {
-    readBehavior = &readFromVme;
-    writeBehavior = &write2Vme;
+  Ya400(){
+    //exchBehavior = new ExchVme();
+    //exchUpBehavior = new ExchEthernet();
     a = 5;
+    Device::SetInfo({1, 2, 3, 4, 5, 6, 7});
+    a = 5;
+  }
+  ~Ya400(){
   }
   /**
   @fn Display
   @brief ф-я вывода информации об устройстве
 */
-  void Display(){std::cout << std::endl << "I'm Ya400." << a << std::endl;}
+  void Display() override{
+    std::cout << std::endl << "I'm Ya400. " << "a = " << a << std::endl;
+    Device::ViewServInfo();
+  }
 };
 
 /**
-  @class B420
-  @brief класс конкретного устройства Б420(ФДН)
+  @class B221
+  @brief класс конкретного устройства Б221(БУС)
 */
-class B420: public IDevice
+class B221: public Device
 {
 private:
-  Write2Ethernet write2Ethernet;     //!< поведение записи по дефолту - Ethernet
-  ReadFromEthernet readFromEthernet; //!< поведение чтения по дефолту - Ethernet
   float b;
 public:
-  B420()
-  {
-    writeBehavior = &write2Ethernet;
-    readBehavior = &readFromEthernet;
+  B221(){
     b = 5.5;
+    Device::SetInfo({11, 12, 13, 14, 15, 16, 17});
+  }
+  ~B221(){
   }
   /**
   @fn Display
   @brief ф-я вывода информации об устройстве
   */
-  void Display(){std::cout << std::endl << "I'm B420." << b << std::endl;}
+  void Display()override{
+    std::cout << std::endl << "I'm B221. " << "b = " << b << std::endl;
+    ViewServInfo();
+  }
 };
 
 #endif //STRATEGY_STRATEGY_H

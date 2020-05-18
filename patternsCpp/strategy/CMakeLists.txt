@@ -1,12 +1,13 @@
 cmake_minimum_required(VERSION 3.9)
 project(strategy)
 
+set(PROJECT_LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 11)
 
 find_package(Doxygen)
 
 set(SOURCE_FILES main.cpp)
-set(HEADERS_FILES strategy.h)
+set(HEADERS_FILES strategy.h serv_info.h)
 
 message(${PROJECT_SOURCE_DIR})
 message(${CMAKE_CURRENT_BINARY_DIR})
