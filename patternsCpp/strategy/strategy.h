@@ -18,8 +18,9 @@
  *              |       \|/
  *           (Down layer) device Ya001
  * Назовем поведение обменов:
- * IExchUpBehavior - наверх в вышестоящий драйвер или систему управления,
- * IExchBehavior - вниз в устройство или нижестоящий драйвер
+ * IExchBehavior - интерфейс(абстрактный класс) поведения записи/чтения
+ * IExchBehavior* exchUpBehavior - наверх в вышестоящий драйвер или систему управления,
+ * IExchBehavior* exchBehavior   - вниз в устройство или нижестоящий драйвер
 */
 
 #include <iostream>
@@ -170,7 +171,7 @@ public:
   /**
   @fn SetExchUpBehavior
   @brief ф-я устновки метода записи/чтения (поведения) вверх по Ethernet или VME
-  @param iw - указатель на интерфейс записи
+  @param ie - указатель на интерфейс интерфейс поведения записи/чтения
 */
   void SetExchUpBehavior(IExchBehavior *ie){
     exchUpBehavior = ie;
@@ -178,7 +179,7 @@ public:
   /**
   @fn SetExchBehavior
   @brief ф-я устновки метода записи/чтения (поведения) по Ethernet или VME
-  @param ir - указатель на интерфейс чтения
+  @param ie - указатель на интерфейс поведения записи/чтения
 */
   void SetExchBehavior(IExchBehavior *ie){
     exchBehavior = ie;

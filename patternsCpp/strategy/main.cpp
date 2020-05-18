@@ -54,7 +54,5 @@ int main()
     item->PerformWrite();
   }
 
-  ya400.Display();
-  b221.Display();
   return 0;
 }
