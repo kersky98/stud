@@ -8,6 +8,43 @@
 #include <memory>
 #include <list>
 #include <algorithm>
+#include <iomanip>
+
+/**
+  @strust TNC_TABLE
+  @brief структура управления
+*/
+struct TNC_TABLE{
+  double time = 0.0; //!< абсолютное время применения команды
+  double ti = 0.0;   //!< абсолютное время длительности интервала излучения
+  double tp = 0.0;   //!< абсолютное время длительности интревала приема
+};
+
+/**
+  @strust CTRL_7EP
+  @brief структура управления 7EP
+*/
+struct CTRL_7EP{
+  /**абсолютное время применения команды, выраженное в количестве тактов
+  внутреннего генератора ПЛИС*/
+  long long unsigned int time = 0;
+  /**абсолютное время время длительности интревала приема, выраженное в
+  количестве тактов внутреннего генератора ПЛИС*/
+  long long unsigned int tp = 0;
+};
+
+/**
+  @strust CTRL_7EM
+  @brief структура управления 7EM
+*/
+struct CTRL_7EM{
+  /**абсолютное время применения команды, выраженное в количестве тактов
+  внутреннего генератора ПЛИС*/
+  long long unsigned int time = 0;
+  /**абсолютное время время длительности интревала приема, выраженное в
+  количестве тактов внутреннего генератора ПЛИС*/
+  long long unsigned int ti = 0;
+};
 
 /**
   @class IObserver
@@ -18,20 +55,25 @@ public:
   /**
     @fn Update
     @brief виртуальный метод обновления состояния
-    @param[in] temp - температура окружающей среды
-    @param[in] humidity - влажность окружающей среды
-    @param[in] pressure - давление окружающей среды
+    @param[in] TNC_TABLE - температура окружающей среды
     @return none
   */
-  virtual void Update(float temp, float humidity, float pressure){
+  virtual void Update(const TNC_TABLE& tnc){
     std::cout << "Virtual Update " << name << std::endl;
   };
-  virtual ~IObserver(){};     //!< виртуальный деструктор класса
+  //!< виртуальный деструктор класса
+  virtual ~IObserver(){
+    std::cout << "IObserver destructor. ";
+    std::cout << p->name << ", "  << p.get() << ", " << p.use_count() << std::endl;
+    //p.reset();
+  };
+  //! имя объекта наблюдателя
   std::string name;
+  std::shared_ptr<IObserver> p;
 };
 
 /**
-  @class IExchBehavior
+  @class ISubject
   @brief интерфейс субъекта
 */
 class ISubject{
@@ -43,6 +85,7 @@ public:
     @return none
   */
   virtual void RegisterObserver(const std::shared_ptr<IObserver> o){
+  //virtual void RegisterObserver(IObserver& o){
     std::cout << "Virtual RegisterObserver" << std::endl;
   };
   /**
@@ -57,7 +100,9 @@ public:
     std::cout << "Virtual NotifyObserver" << std::endl;
   };
   //! виртуальный деструктор класса
-  virtual ~ISubject(){};
+  virtual ~ISubject(){
+    std::cout << "ISubject destructor. " << std::endl;
+  };
 };
 
 /**
@@ -71,105 +116,124 @@ public:
 };
 
 /**
-  @class WeatherData
+  @class Sau
   @brief класс субъекта ("один")
 */
-class WeatherData: public ISubject{
+class Sau: public ISubject{
 public:
   void RegisterObserver(const std::shared_ptr<IObserver> o){
     observers.push_back(o);
+    std::cout << o->name << " is registered" << std::endl;
   }
 
   void RemoveObserver(const std::shared_ptr<IObserver> o){
     std::list<std::shared_ptr<IObserver>>::iterator it =
         std::find(std::begin(observers), std::end(observers), o);
+    //std::cout << "found: " << (*it)->name << ", " << *it << std::endl;
     if(it != end(observers)){
       observers.erase(it);
+      std::cout << o->name << " is deleted" << std::endl;
+    }
+    else{
+      std::cout << o->name << " not found" << std::endl;
     }
   }
 
   void NotifyObserver(){
-    for(const auto item : observers){
-      item->Update(temperature, humidity, pressure);
+    for(const auto& item : observers){
+      item->Update(tnc);
     }
   }
   //! оповещение наблюдателей о появлении новых данных
-  void measurementChanged(){
+  void CtrlChanged(){
     NotifyObserver();
   }
 
-  void SetMeasurements(float temp, float humidity, float pressure){
-    this->temperature = temp;
-    this->humidity = humidity;
-    this->pressure = pressure;
-    measurementChanged();
+  void SetCtrl(const TNC_TABLE& t){
+    tnc = t;
+    CtrlChanged();
+  }
+
+  ~Sau(){
+    std::cout << "Sau destructor: " << std::endl;
+    for(auto& item : observers){
+      std::cout << item->name << ", "  << item.get() << ", " << item.use_count() << std::endl;
+      //item.reset();
+    }
+    observers.clear();
   }
 public:
-  float temperature;
-  float humidity;
-  float pressure;
+  TNC_TABLE tnc;
   std::list<std::shared_ptr<IObserver>> observers;
 };
 
 /**
-  @class CurrentConditionsDisplay
-  @brief класс объекта-наблюдателя ("многие")
+  @class Device7EP
+  @brief класс объекта-наблюдателя приемного устройства 7ЕП ("многие")
 */
-class CurrentConditionsDisplay: public IObserver, IDisplay{
+class Device7EP: public IObserver, IDisplay, std::enable_shared_from_this<Device7EP>{
 public:
-  CurrentConditionsDisplay(ISubject& wData): weatherData(wData){
-    name = "CurrentConditionsDisplay";
-    wData.RegisterObserver(std::make_shared<CurrentConditionsDisplay>(*this));
+  Device7EP(ISubject& s): sau(s){
+    name = "Device7EP";
+    clockFrequency = 100'000'000;
+    //p = std::shared_ptr<IObserver>(std::shared_from_this());
+    p = std::shared_ptr<IObserver>(this);
+    sau.RegisterObserver(p);
   }
 
-  void Update(float temp, float humidity, float pressure){
-    this->temperature = temp;
-    this->humidity = humidity;
-    this->pressure = pressure;
+  ~Device7EP(){
+    std::cout << "Device7EP destructor. " << std::endl;
+  }
+
+  void Update(const TNC_TABLE& tnc){
+    ctrl7ep.time = tnc.time * clockFrequency;
+    ctrl7ep.tp = tnc.tp * clockFrequency;
     Display();
   }
 
   void Display(){
-    std::cout << "Current conditions: " << temperature << "C degrees, " <<
-        humidity << "% humidity and pressure " <<
-        pressure << " kPa" << std::endl;
+    std::cout << "Current ctrl "<< name << ": " <<
+        "time " << std::setw(12) << ctrl7ep.time << " clocks, " <<
+        "tp " << std::setw(6) << ctrl7ep.tp << " clocks." << std::endl;
   }
 public:
-  float temperature;
-  float humidity;
-  float pressure;
-  ISubject& weatherData;
+  CTRL_7EP ctrl7ep; //!< структура управления 7ЕП
+  ISubject& sau;     //!< ссылка на субъект САУ
+  unsigned int clockFrequency = 0;  //!< тактовая частота ПЛИС
 };
 
 /**
-  @class StatisticsDisplay
-  @brief класс объекта-наблюдателя ("многие")
+  @class Device7EM
+  @brief класс объекта-наблюдателя передающего устройства 7ЕМ ("многие")
 */
-class StatisticsDisplay: public IObserver, IDisplay{
+class Device7EM: public IObserver, IDisplay{
 public:
-  StatisticsDisplay(ISubject& wData): weatherData(wData){
-    name = "StatisticsDisplay";
-    wData.RegisterObserver(std::make_shared<StatisticsDisplay>(*this));
+  Device7EM(ISubject& s): sau(s){
+    name = "Device7EM";
+    clockFrequency = 50'000'000;
+    p = std::shared_ptr<IObserver>(this);
+    sau.RegisterObserver(p);
   }
 
-  void Update(float temp, float humidity, float pressure){
-    meanTemperature = (meanTemperature*n + temp) / (n+1);
-    meanHumidity = (meanHumidity*n + humidity) / (n+1);
-    meanPressure = (meanPressure*n + pressure) / (n+1);
-    n++;
+  ~Device7EM(){
+    std::cout << "Device7EM destructor. " << std::endl;
+  }
+
+  void Update(const TNC_TABLE& tnc){
+    ctrl7em.time = tnc.time * clockFrequency;
+    ctrl7em.ti = tnc.ti * clockFrequency;
     Display();
   }
 
   void Display(){
-    std::cout << "Mean temperature/humidity/pressure: " << meanTemperature << " / " <<
-        meanHumidity << " / " << meanPressure << std::endl;
+    std::cout << "Current ctrl " << name << ": " <<
+        "time " << std::setw(12) << ctrl7em.time << " clocks, " <<
+        "ti " << std::setw(6) << ctrl7em.ti << " clocks." << std::endl;
   }
 public:
-  float meanTemperature = 0;
-  float meanHumidity = 0;
-  float meanPressure = 0;
-  int n = 0;
-  ISubject& weatherData;
+  CTRL_7EM ctrl7em; //!< структура управления 7ЕМ
+  ISubject& sau;     //!< ссылка на субъект САУ
+  unsigned int clockFrequency;  //!< тактовая частота ПЛИС
 };
 
 #endif //OBSERVER_H

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.9)
 project(observer)
 
 set(PROJECT_LANGUAGES CXX)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 find_package(Doxygen)
 
@@ -49,6 +49,6 @@ if(DOXYGEN_FOUND)
 
 endif(DOXYGEN_FOUND)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
 add_executable(observer ${SOURCE_FILES} ${HEADERS_FILES})

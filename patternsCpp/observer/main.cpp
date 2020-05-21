@@ -8,20 +8,42 @@ using namespace std;
 int main()
 {
   cout << "Presentation of the OBSERVER pattern!" << endl;
-  WeatherData weatherData;
 
-  CurrentConditionsDisplay currentDisplay(weatherData);
-  StatisticsDisplay statisticsDisplay(weatherData);
+  //! создание субъекта, об изменении его стояния будут оповещаться зарегистрированные наблюдатели
+  Sau sau;
 
-  cout << "Observers count = " << weatherData.observers.size() << endl;
-  for(auto item : weatherData.observers){
-    cout << "Observers name = " << item->name << endl;
-  }
+  /**создание устройств-наблюдателей Device7EM, Device7EP. Подписка на оповещения
+  от субъекта по умолчанию в конструкторе*/
+  shared_ptr<Device7EM> device7em = make_shared<Device7EM>(sau);
+  shared_ptr<Device7EP> device7ep = make_shared<Device7EP>(sau);
 
-  weatherData.SetMeasurements(10.f, 100.f, 100.0f);
-  weatherData.SetMeasurements(15.f, 90.f, 99.0f);
-  weatherData.SetMeasurements(20.f, 80.f, 98.0f);
+/*  cout << "Observers count = " << sau.observers.size() << endl;
+  for(auto item : sau.observers){
+    cout << "Observer name = " << item->name << endl;
+  }*/
 
-  //delete weatherData;
+  /** САУ оповещает устройства-наблюдатели о том, что пришли новые данные*/
+  cout << "SAU SetCtrl:" << endl;
+  sau.SetCtrl({100., .001, .001});
+  //sau.SetCtrl({200., .002, .002});
+
+  /** Удаление устройства-наблюдателя из списка оповещения САУ*/
+  sau.RemoveObserver(device7ep);
+  //sau.RemoveObserver(device7em);
+
+  cout << "After remove:" << endl;
+  sau.SetCtrl({300., .003, .003});
+
+  cout << "After register:" << endl;
+  //sau.RegisterObserver(device7em);
+  sau.RegisterObserver(device7ep);
+  sau.SetCtrl({300., .003, .003});
+
+  cout << endl << "!!!---------Destroy truble(((----------!!!" << endl;
+  cout << "use_count: " << device7em.use_count() << ", " << device7ep.use_count() << endl;
+  //device7ep.reset();
+  //device7em.reset();
+  //cout << "use_count: " << device7em.use_count() << ", " << device7ep.use_count() << endl;
+
   return 0;
 }
