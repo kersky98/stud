@@ -29,20 +29,18 @@ int main()
 
   /** Удаление устройства-наблюдателя из списка оповещения САУ*/
   sau.RemoveObserver(device7ep);
-  //sau.RemoveObserver(device7em);
+  sau.RemoveObserver(device7em);
 
   cout << "After remove:" << endl;
   sau.SetCtrl({300., .003, .003});
 
-  cout << "After register:" << endl;
-  //sau.RegisterObserver(device7em);
+  sau.RegisterObserver(device7em);
   sau.RegisterObserver(device7ep);
+  cout << "After register:" << endl;
   sau.SetCtrl({300., .003, .003});
 
   cout << endl << "!!!---------Destroy truble(((----------!!!" << endl;
   cout << "use_count: " << device7em.use_count() << ", " << device7ep.use_count() << endl;
-  //device7ep.reset();
-  //device7em.reset();
   //cout << "use_count: " << device7em.use_count() << ", " << device7ep.use_count() << endl;
 
   return 0;

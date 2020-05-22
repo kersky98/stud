@@ -64,13 +64,15 @@ public:
   //!< виртуальный деструктор класса
   virtual ~IObserver(){
     std::cout << "IObserver destructor. ";
-    std::cout << p->name << ", "  << p.get() << ", " << p.use_count() << std::endl;
+    std::cout << p->name << ", "  << p << ", " << p.use_count() << std::endl;
     //p.reset();
   };
   //! имя объекта наблюдателя
   std::string name;
   std::shared_ptr<IObserver> p;
 };
+
+using ptrTypeIObserver = std::shared_ptr<IObserver>;
 
 /**
   @class ISubject
@@ -160,7 +162,7 @@ public:
       std::cout << item->name << ", "  << item.get() << ", " << item.use_count() << std::endl;
       //item.reset();
     }
-    observers.clear();
+    //observers.clear();
   }
 public:
   TNC_TABLE tnc;
