@@ -11,7 +11,7 @@
 #include <iomanip>
 
 /**
-  @strust TNC_TABLE
+  @struct TNC_TABLE
   @brief структура управления
 */
 struct TNC_TABLE{
@@ -21,7 +21,7 @@ struct TNC_TABLE{
 };
 
 /**
-  @strust CTRL_7EP
+  @struct CTRL_7EP
   @brief структура управления 7EP
 */
 struct CTRL_7EP{
@@ -34,7 +34,7 @@ struct CTRL_7EP{
 };
 
 /**
-  @strust CTRL_7EM
+  @struct CTRL_7EM
   @brief структура управления 7EM
 */
 struct CTRL_7EM{
@@ -55,7 +55,7 @@ public:
   /**
     @fn Update
     @brief виртуальный метод обновления состояния
-    @param[in] TNC_TABLE - температура окружающей среды
+    @param[in] tnc - структура управления
     @return none
   */
   virtual void Update(const TNC_TABLE& tnc){
@@ -69,6 +69,7 @@ public:
   };
   //! имя объекта наблюдателя
   std::string name;
+  //! указатель на наблюдателя (на себя)
   std::shared_ptr<IObserver> p;
 };
 
@@ -165,7 +166,9 @@ public:
     //observers.clear();
   }
 public:
+  //! структура управления
   TNC_TABLE tnc;
+  //! список зарегистрированных наблюдателей
   std::list<std::shared_ptr<IObserver>> observers;
 };
 
@@ -173,12 +176,11 @@ public:
   @class Device7EP
   @brief класс объекта-наблюдателя приемного устройства 7ЕП ("многие")
 */
-class Device7EP: public IObserver, IDisplay, std::enable_shared_from_this<Device7EP>{
+class Device7EP: public IObserver, IDisplay{
 public:
   Device7EP(ISubject& s): sau(s){
     name = "Device7EP";
     clockFrequency = 100'000'000;
-    //p = std::shared_ptr<IObserver>(std::shared_from_this());
     p = std::shared_ptr<IObserver>(this);
     sau.RegisterObserver(p);
   }
