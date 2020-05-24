@@ -8,22 +8,25 @@ using namespace std;
 int main()
 {
   cout << "Presentation of the DECORATOR pattern!" << std::endl;
-  Beverage* beverage = new Espresso();
-  cout << beverage->GetDescription() << " $" << beverage->cost() << endl;
 
-  Mocha* beverage1 = new Mocha(beverage);
-  Soy* beverage2 = new Soy(beverage1);
-  cout << beverage2->GetDescription() << " $" << beverage2->cost() << endl;
-  cout << "My description:" << beverage2->GetMyDescription() << endl;
+  cout << "-----Target channel-----:" << endl;
+  IBaseSignal* baseTarget = new Signal();
+  baseTarget = new Fdn(baseTarget);
+  baseTarget = new Sa(baseTarget);
+  baseTarget = new Plo(baseTarget);
+  baseTarget = new Tzk(baseTarget);
+  cout << baseTarget->GetDescription() << ". data: " << baseTarget->Calculate() << endl;
 
-  cout << "-----Signal-----:" << endl;
-  IBaseSignal* base = new Signal();
-  //cout << signal->GetDescription() << " data: " << signal->Calculate() << endl;
-  base = new Fdn(base);
-  base = new Sa(base);
-  base = new Plo(base);
-  base = new Tzk(base);
-  cout << base->GetDescription() << ". data: " <<
-      base->Calculate() << endl;
+  cout << "-----Noise channel-----:" << endl;
+  IBaseSignal* baseNoise = new Signal();
+  baseNoise = new Fdn(baseNoise);
+  // без спектральной обработки для пеленгации помех
+  baseNoise = new Plo(baseNoise);
+  baseNoise = new Tzk(baseNoise);
+  cout << baseNoise->GetDescription() << ". data: " << baseNoise->Calculate() << endl;
+
+  cout << endl << "-----Destroy objects-----:" << endl;
+  delete baseTarget;
+  delete baseNoise;
   return 0;
 }
