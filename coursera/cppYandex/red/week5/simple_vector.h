@@ -22,12 +22,18 @@ public:
   T& operator[](size_t index){
     return data[index];
   }
-  void operator=(const SimpleVector<T>& other){
-    size_ = other.Size();
-    capacity_ = 2*size_;
-    data = new T[capacity_];
-    end_ = data + size_;
-    std::copy(other.begin(), other.end(), begin());
+  SimpleVector<T>& operator=(const SimpleVector<T>& other){
+    if(&other == this){
+      return *this;
+    }else{
+      size_ = other.Size();
+      capacity_ = 2*size_;
+      delete[] data;
+      data = new T[capacity_];
+      end_ = data + size_;
+      std::copy(other.begin(), other.end(), begin());
+      return *this;
+    }
   }
   T* begin(){return data;};
   T* end(){return end_;};
