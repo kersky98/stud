@@ -1,29 +1,22 @@
 #include <algorithm>
+#include <cstdint>
 #include <iostream>
-#include <vector>
-#include <string>
 #include <numeric>
+#include <string>
+#include <vector>
 
 using namespace std;
 
 template <typename Iterator>
 class IteratorRange {
-public:
-  IteratorRange(Iterator begin, Iterator end)
-    : first(begin)
-    , last(end)
-  {
-  }
+ public:
+  IteratorRange(Iterator begin, Iterator end) : first(begin), last(end) {}
 
-  Iterator begin() const {
-    return first;
-  }
+  Iterator begin() const { return first; }
 
-  Iterator end() const {
-    return last;
-  }
+  Iterator end() const { return last; }
 
-private:
+ private:
   Iterator first, last;
 };
 
@@ -55,20 +48,19 @@ vector<Person> ReadPeople(istream& input) {
 int main() {
   vector<Person> people = ReadPeople(cin);
 
-  sort(begin(people), end(people), [](const Person& lhs, const Person& rhs) {
-    return lhs.age < rhs.age;
-  });
-
-  for (string command; cin >> command; ) {
+  for (string command; cin >> command;) {
     if (command == "AGE") {
       int adult_age;
       cin >> adult_age;
 
-      auto adult_begin = lower_bound(
-        begin(people), end(people), adult_age, [](const Person& lhs, int age) {
-          return lhs.age < age;
-        }
-      );
+      sort(begin(people), end(people),
+           [](const Person& lhs, const Person& rhs) {
+             return lhs.age < rhs.age;
+           });
+
+      auto adult_begin =
+          lower_bound(begin(people), end(people), adult_age,
+                      [](const Person& lhs, int age) { return lhs.age < age; });
 
       cout << "There are " << std::distance(adult_begin, end(people))
            << " adult people for maturity age " << adult_age << '\n';
@@ -76,42 +68,40 @@ int main() {
       int count;
       cin >> count;
 
+      sort(people.begin(), people.end(),
+           [](const Person& lhs, const Person& rhs) {
+             return lhs.income > rhs.income;
+           });
+
       auto head = Head(people, count);
 
-      partial_sort(
-        head.begin(), head.end(), end(people), [](const Person& lhs, const Person& rhs) {
-          return lhs.income > rhs.income;
-        }
-      );
-
-      int total_income = accumulate(
-        head.begin(), head.end(), 0, [](int cur, Person& p) {
-          return p.income += cur;
-        }
-      );
-      cout << "Top-" << count << " people have total income " << total_income << '\n';
+      uint64_t total_income =
+          accumulate(head.begin(), head.end(), 0ULL,
+                     [](uint64_t cur, Person& p) { return cur += p.income; });
+      cout << "Top-" << count << " people have total income " << total_income
+           << '\n';
     } else if (command == "POPULAR_NAME") {
       char gender;
       cin >> gender;
 
       IteratorRange range{
-        begin(people),
-        partition(begin(people), end(people), [gender](Person& p) {
-          return p.is_male = (gender == 'M');
-        })
-      };
+          begin(people),
+          partition(begin(people), end(people), [gender](Person& p) {
+            return gender == 'M' ? p.is_male : !p.is_male;
+          })};
       if (range.begin() == range.end()) {
         cout << "No people of gender " << gender << '\n';
       } else {
-        sort(range.begin(), range.end(), [](const Person& lhs, const Person& rhs) {
-          return lhs.name < rhs.name;
-        });
+        sort(range.begin(), range.end(),
+             [](const Person& lhs, const Person& rhs) {
+               return lhs.name < rhs.name;
+             });
         const string* most_popular_name = &range.begin()->name;
         int count = 1;
-        for (auto i = range.begin(); i != range.end(); ) {
-          auto same_name_end = find_if_not(i, range.end(), [i](const Person& p) {
-            return p.name == i->name;
-          });
+        for (auto i = range.begin(); i != range.end();) {
+          auto same_name_end =
+              find_if_not(i, range.end(),
+                          [i](const Person& p) { return p.name == i->name; });
           auto cur_name_count = std::distance(i, same_name_end);
           if (cur_name_count > count) {
             count = cur_name_count;
