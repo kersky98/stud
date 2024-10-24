@@ -1,7 +1,9 @@
 #include <algorithm>
 #include <cstdint>
 #include <iostream>
+#include <map>
 #include <numeric>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -48,32 +50,64 @@ vector<Person> ReadPeople(istream& input) {
 int main() {
   vector<Person> people = ReadPeople(cin);
 
+  vector<Person> people_sorted_by_name(people);
+  sort(begin(people_sorted_by_name), end(people_sorted_by_name),
+       [](const Person& lhs, const Person& rhs) { return lhs.age < rhs.age; });
+
+  vector<Person> people_sorted_by_income(people);
+  sort(people_sorted_by_income.begin(), people_sorted_by_income.end(),
+       [](const Person& lhs, const Person& rhs) {
+         return lhs.income > rhs.income;
+       });
+
+  vector<Person> people_sorted_by_gender(people);
+  vector<Person>::iterator it_mf =
+      partition(begin(people_sorted_by_gender), end(people_sorted_by_gender),
+                [](Person& p) { return p.is_male; });
+  IteratorRange mrange{begin(people_sorted_by_gender), it_mf};
+  IteratorRange wrange{it_mf, end(people_sorted_by_gender)};
+
+  uint64_t mcount_max = 0;
+  map<string, uint64_t> mname2count;
+  map<uint64_t, set<string>> count2mname;
+  for (const Person& item : mrange) {
+    mname2count[item.name]++;
+  }
+
+  for (auto [key, value] : mname2count) {
+    count2mname[value].insert(key);
+    mcount_max = max(mcount_max, value);
+  }
+
+  uint64_t wcount_max = 0;
+  map<string, uint64_t> wname2count;
+  map<uint64_t, set<string>> count2wname;
+  for (const Person& item : wrange) {
+    wname2count[item.name]++;
+  }
+
+  for (auto [key, value] : wname2count) {
+    count2wname[value].insert(key);
+    wcount_max = max(wcount_max, value);
+  }
+
   for (string command; cin >> command;) {
     if (command == "AGE") {
       int adult_age;
       cin >> adult_age;
 
-      sort(begin(people), end(people),
-           [](const Person& lhs, const Person& rhs) {
-             return lhs.age < rhs.age;
-           });
+      auto adult_begin = lower_bound(
+          begin(people_sorted_by_name), end(people_sorted_by_name), adult_age,
+          [](const Person& lhs, int age) { return lhs.age < age; });
 
-      auto adult_begin =
-          lower_bound(begin(people), end(people), adult_age,
-                      [](const Person& lhs, int age) { return lhs.age < age; });
-
-      cout << "There are " << std::distance(adult_begin, end(people))
+      cout << "There are "
+           << std::distance(adult_begin, end(people_sorted_by_name))
            << " adult people for maturity age " << adult_age << '\n';
     } else if (command == "WEALTHY") {
       int count;
       cin >> count;
 
-      sort(people.begin(), people.end(),
-           [](const Person& lhs, const Person& rhs) {
-             return lhs.income > rhs.income;
-           });
-
-      auto head = Head(people, count);
+      auto head = Head(people_sorted_by_income, count);
 
       uint64_t total_income =
           accumulate(head.begin(), head.end(), 0ULL,
@@ -84,34 +118,23 @@ int main() {
       char gender;
       cin >> gender;
 
-      IteratorRange range{
-          begin(people),
-          partition(begin(people), end(people), [gender](Person& p) {
-            return gender == 'M' ? p.is_male : !p.is_male;
-          })};
-      if (range.begin() == range.end()) {
-        cout << "No people of gender " << gender << '\n';
-      } else {
-        sort(range.begin(), range.end(),
-             [](const Person& lhs, const Person& rhs) {
-               return lhs.name < rhs.name;
-             });
-        const string* most_popular_name = &range.begin()->name;
-        int count = 1;
-        for (auto i = range.begin(); i != range.end();) {
-          auto same_name_end =
-              find_if_not(i, range.end(),
-                          [i](const Person& p) { return p.name == i->name; });
-          auto cur_name_count = std::distance(i, same_name_end);
-          if (cur_name_count > count) {
-            count = cur_name_count;
-            most_popular_name = &i->name;
-          }
-          i = same_name_end;
+      const string* most_popular_name;
+      if (gender == 'M') {
+        if (mrange.begin() == mrange.end()) {
+          cout << "No people of gender " << gender << '\n'; continue;
+        } else {
+          most_popular_name = &(*count2mname[mcount_max].begin());
         }
-        cout << "Most popular name among people of gender " << gender << " is "
-             << *most_popular_name << '\n';
+      } else {
+        if (wrange.begin() == wrange.end()) {
+          cout << "No people of gender " << gender << '\n'; continue;
+        } else {
+          most_popular_name = &(*count2wname[wcount_max].begin());
+        }
       }
+
+      cout << "Most popular name among people of gender " << gender << " is "
+           << *most_popular_name << '\n';
     }
   }
 }
