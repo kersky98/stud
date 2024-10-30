@@ -1,0 +1,95 @@
+<mxfile host="65bd71144e">
+    <diagram id="1FEt1kL1x8fuER3nC6XC" name="Page-1">
+        <mxGraphModel dx="1277" dy="788" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="6" value="Worker" style="swimlane;whiteSpace=wrap;html=1;startSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="480" y="40" width="290" height="160" as="geometry">
+                        <mxRectangle x="200" y="40" width="80" height="30" as="alternateBounds"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="7" value="+ virtual Process(unique_ptr&amp;lt;Email&amp;gt; email) = 0;&amp;nbsp;&lt;br&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;+ virtual Run() { trow logic_error(); }&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;+ ~virtual Worker() = default;&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;+ void SetNext(&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;unique_ptr&amp;lt;Email&amp;gt; email&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;) {&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;if(next_) next_-&amp;gt;SetNext(move(email));&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;else next_ = move(email); }&lt;/span&gt;&lt;/div&gt;&lt;span style=&quot;&quot;&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;# void PassOn(&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;unique_ptr&amp;lt;Email&amp;gt; email) {&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;if(next_) next_-&amp;gt;Process(move(email));&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;}&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;- unique_ptr&amp;lt;Worker&amp;gt; next_;&lt;/span&gt;&lt;/div&gt;&lt;/span&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="6">
+                    <mxGeometry x="10" y="15" width="280" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" style="edgeStyle=none;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="8" target="6">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" value="Extended" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="17">
+                    <mxGeometry x="0.1197" relative="1" as="geometry">
+                        <mxPoint x="-1" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="8" value="Reader" style="swimlane;whiteSpace=wrap;html=1;startSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="280" width="240" height="160" as="geometry">
+                        <mxRectangle x="200" y="40" width="80" height="30" as="alternateBounds"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="18" style="edgeStyle=none;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="10" target="6">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="22" value="Extended" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="18">
+                    <mxGeometry x="0.122" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="10" value="Filter" style="swimlane;whiteSpace=wrap;html=1;startSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="320" y="280" width="240" height="160" as="geometry">
+                        <mxRectangle x="200" y="40" width="80" height="30" as="alternateBounds"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="11" value="+ Filter (function func);&lt;br&gt;+ Process(unique_ptr&amp;lt;Email&amp;gt; email) {&lt;br&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;if (func_(*email)) &lt;br&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;// прд. далее&lt;br&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;PassOn(move(email));&lt;br&gt;}&amp;nbsp;&lt;br&gt;&lt;div style=&quot;&quot;&gt;&lt;br&gt;&lt;/div&gt;&lt;span style=&quot;&quot;&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;- function func_;&lt;/span&gt;&lt;/div&gt;&lt;/span&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="10">
+                    <mxGeometry x="10" y="20" width="230" height="130" as="geometry"/>
+                </mxCell>
+                <mxCell id="19" style="edgeStyle=none;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="12" target="6">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="23" value="Extended" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="19">
+                    <mxGeometry x="-0.3185" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="12" value="Copier" style="swimlane;whiteSpace=wrap;html=1;startSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="600" y="280" width="240" height="160" as="geometry">
+                        <mxRectangle x="200" y="40" width="80" height="30" as="alternateBounds"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="13" value="+ Copier(string recipient);&lt;br&gt;+ Process(unique_ptr&amp;lt;Email&amp;gt; email) {&lt;span style=&quot;&quot;&gt;&#9;&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;&quot;&gt;&#9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;email2 = email;&lt;br&gt;&lt;span style=&quot;&quot;&gt;&#9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;email2.to = recipient_;&lt;br&gt;&lt;span style=&quot;&quot;&gt;&#9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;PassOn(move(email));&lt;br&gt;&lt;span style=&quot;&quot;&gt;&#9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;PassOn(move(email2));&lt;br&gt;}&lt;br&gt;&lt;div style=&quot;&quot;&gt;&lt;br&gt;&lt;/div&gt;&lt;span style=&quot;&quot;&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;- string recipient_;&lt;/span&gt;&lt;/div&gt;&lt;/span&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="12">
+                    <mxGeometry x="10" y="15" width="230" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="+ Reader(istream&amp;amp; in);&lt;br&gt;+&amp;nbsp;Process(unique_ptr&amp;lt;Email&amp;gt; email) {};&amp;nbsp;&lt;br&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;+ Run() { // перегр. только у ридера&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&amp;nbsp;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;read emails &amp;nbsp;from in_;&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;PassOn(move(email)); // прд. далее&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;}&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;br&gt;&lt;/div&gt;&lt;span style=&quot;&quot;&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;- istream&amp;amp; in_;&lt;/span&gt;&lt;/div&gt;&lt;/span&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+                    <mxGeometry x="50" y="300" width="240" height="130" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" style="edgeStyle=none;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="14">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="620" y="200" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="24" value="Extended" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="20">
+                    <mxGeometry x="-0.164" y="-2" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="14" value="Sender" style="swimlane;whiteSpace=wrap;html=1;startSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="880" y="280" width="240" height="160" as="geometry">
+                        <mxRectangle x="200" y="40" width="80" height="30" as="alternateBounds"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="15" value="+ Sender(ostream&amp;amp; out);&lt;br&gt;+ Process(unique_ptr&amp;lt;Email&amp;gt; email) {&lt;br&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;out_ &amp;lt;&amp;lt; email;&lt;br&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#9;&lt;/span&gt;PassOn(move(email));&lt;br&gt;}&amp;nbsp;&lt;br&gt;&lt;div style=&quot;&quot;&gt;&lt;br&gt;&lt;/div&gt;&lt;span style=&quot;&quot;&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;- ostream&amp;amp; out_;&lt;/span&gt;&lt;/div&gt;&lt;/span&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="14">
+                    <mxGeometry x="10" y="30" width="230" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="25" value="PipelineBuilder" style="swimlane;whiteSpace=wrap;html=1;startSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="520" width="480" height="160" as="geometry">
+                        <mxRectangle x="200" y="40" width="80" height="30" as="alternateBounds"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="26" value="+ PipelineBuilder(istream&amp;amp; in) { root_ = make_unique&amp;lt;Reader&amp;gt;(in); }&lt;br&gt;+ FilterBy(function func) { root_-&amp;gt;SetNext(make_unique&amp;lt;Filter&amp;gt;(func)); }&lt;br&gt;+ CopyTo(string recipient) { root_-&amp;gt;SetNext(make_unique&amp;lt;Copier&amp;gt;(recipient)); }&lt;br&gt;+ Send(ostream&amp;amp; out) { root_-&amp;gt;SetNext(make_unique&amp;lt;Sender&amp;gt;(out)); }&lt;br&gt;+ unique_ptr&amp;lt;Worker&amp;gt; Build() { return move(root_); }&lt;br&gt;&lt;br&gt;- unique_ptr&amp;lt;Worker&amp;gt; root_;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="25">
+                    <mxGeometry x="10" y="25" width="450" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="27" value="Use case:&lt;br&gt;PipelineBuilder builder(cin); // создаем пайплайн, первый обработчик в нем будет ридер, данные из потока пока не читаются&lt;br&gt;builder.FilterBy(function); // добавляем обработчик фильтр&lt;br&gt;builder.CopyTo(to); // добавляем обработчик копия&lt;br&gt;builder.Send(cout); // добавляем обработчик отправщика&lt;br&gt;// обратим внимание, что пока мы только регистрировали обработчики&lt;br&gt;auto pipeline = builder.Build(); // получили корневой обработчик (ридер)&lt;br&gt;pipeline-&amp;gt;Run(); // только у ридера есть перегруженная функция Run, в ней читаются данные из потока, создаются объекты email и передаются далее в другие обработчики." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="640" y="500" width="480" height="180" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
