@@ -18,10 +18,17 @@ def f1(x, y):
 
 def f(x0, x1):
     """
-    Целевая функция с двумя локальными минимумами около (±1.5, 0).
+    Целевая функция с двумя локальными минимумами около (-4.777, -3.935) и (4.777, 3.935).
     """
     return -1*np.sinc( np.pi/18 * np.sqrt((5*x0-x1+20)**2 + (x0-5*x1-15)**2) )-\
       0.5*np.sinc( np.pi/18 * np.sqrt((5*x0-x1-20)**2 + (x0-5*x1+15)**2) )
+
+def f2(x0, x1):
+    """
+    Целевая функция с одним локальным минимумом около (0, 0).
+    """
+    return -np.sinc(np.pi/60 * np.sqrt((5*x0-x1)**2 + (x0-5*x1)**2)) /\
+           np.sinc(np.pi*np.sqrt(2))
 
 
 def genetic_algorithm(f, bounds=(-10, 10), n_population=50, n_generations=100,
@@ -68,10 +75,13 @@ def genetic_algorithm(f, bounds=(-10, 10), n_population=50, n_generations=100,
         # Новая популяция
         new_pop = []
         for _ in range(n_population // 2):
+            # fitness / fitness.sum() создаёт вероятности выбора каждой особи
+            # Чем выше приспособленность (fitness) тем больше шанс быть выбранным
+            # Это и есть "рулеточный отбор" (roulette wheel selection)
             idx1, idx2 = np.random.choice(len(pop), size=2, p=fitness / fitness.sum())
             parent1, parent2 = pop[idx1], pop[idx2]
 
-            # Кроссовер
+            # Кроссовер . С вероятностью crossover_rate происходит скрещивание
             if np.random.rand() < crossover_rate:
                 alpha = np.random.rand()
                 child1 = alpha * parent1 + (1 - alpha) * parent2
@@ -79,7 +89,8 @@ def genetic_algorithm(f, bounds=(-10, 10), n_population=50, n_generations=100,
             else:
                 child1, child2 = parent1.copy(), parent2.copy()
 
-            # Мутация
+            # Мутация. С вероятностью mutation_rate ребёнок мутирует.
+            # Это помогает: Избежать застревания в локальных минимумах, исследовать новые области пространства
             if np.random.rand() < mutation_rate:
                 child1 += np.random.normal(0, sigma, size=2)
             if np.random.rand() < mutation_rate:
@@ -89,12 +100,16 @@ def genetic_algorithm(f, bounds=(-10, 10), n_population=50, n_generations=100,
             child1 = np.clip(child1, bounds[0], bounds[1])
             child2 = np.clip(child2, bounds[0], bounds[1])
 
+            # Добавить child1 и child2 как отдельные особи в список новой популяции
             new_pop.extend([child1, child2])
 
         # Обновляем популяцию
         pop = np.array(new_pop)
 
-        # Элитизм
+        # Элитизм - сохранение лучшего решения
+        # Берём лучшее найденное решение (из прошлого поколения)
+        # Заменяем им одну случайную особь в новой популяции
+        # Это гарантирует, что лучшее решение не потеряется при обновлении
         if len(pop) > 0:
             pop[np.random.randint(len(pop))] = best_individual
 
@@ -192,9 +207,11 @@ def main():
     ax2.scatter(actual_x, actual_y, color='green', s=180, marker='*',
                 edgecolor='black', linewidth=2, label='Фактический минимум')
 
-    # Группировка найденных минимумов
+    # Группировка найденных минимумов по np.linalg.norm(a - b)?
+    # евклидову расстоянию между двумя точками
+    # TODO: здесь напрашивается более продвинутая кластеризация
     unique_found = []
-    tolerance = 0.2
+    tolerance = 0.1
     for pt in found_minima:
         if not any(np.linalg.norm(np.array(pt) - np.array(u)) < tolerance for u in unique_found):
             unique_found.append(pt)
